@@ -8,3 +8,14 @@ require('toggleterm').setup {
     border = 'curved',
   },
 }
+
+-- Lazygit in a floating terminal
+local Terminal = require('toggleterm.terminal').Terminal
+local lazygit = Terminal:new {
+  cmd = 'lazygit',
+  hidden = true,
+  direction = 'float',
+  float_opts = { border = 'curved' },
+}
+
+vim.keymap.set('n', '<leader>gg', function() lazygit:toggle() end, { desc = '[G]it: Lazy[g]it' })
