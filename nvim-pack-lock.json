@@ -139,6 +139,11 @@
       "rev": "3d188ed2113431cf8dac77be61b842acb64433d9",
       "src": "https://github.com/tpope/vim-surround"
     },
+    "vimtex": {
+      "rev": "9f6a5bb0a9c9f1542fe88dc07511ce8401242e2a",
+      "src": "https://github.com/lervag/vimtex",
+      "version": "'v2.15'"
+    },
     "which-key.nvim": {
       "rev": "3aab2147e74890957785941f0c1ad87d0a44c15a",
       "src": "https://github.com/folke/which-key.nvim"
