@@ -86,10 +86,6 @@
       "rev": "c282a62bec6c0621a1ef5132aa3f4c9fc4dcc2c7",
       "src": "https://github.com/kevinhwang91/nvim-bqf"
     },
-    "nvim-hlslens": {
-      "rev": "be2d7b2be01860b5445a007ff2bc72b29896db6b",
-      "src": "https://github.com/kevinhwang91/nvim-hlslens"
-    },
     "nvim-lspconfig": {
       "rev": "684cb45c2faa24ce463b4fe9aaf011bfe1e0fb26",
       "src": "https://github.com/neovim/nvim-lspconfig"
