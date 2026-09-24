@@ -9,4 +9,4 @@ require('everforest').setup {
 }
 
 -- Overrides the 'tokyonight-night' default set in init.lua
-vim.cmd.colorscheme 'everforest'
+-- vim.cmd.colorscheme 'everforest'

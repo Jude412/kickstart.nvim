@@ -7,6 +7,21 @@ require('toggleterm').setup {
   float_opts = {
     border = 'curved',
   },
+  -- Subtle [i/n] in the bottom-right of the float border so you can tell which
+  -- terminal is showing. Recomputed on every open, since n changes as
+  -- terminals are created and exit. Hidden terminals (lazygit) are skipped.
+  on_open = function(term)
+    if term.hidden or not term.window or vim.api.nvim_win_get_config(term.window).relative == '' then return end
+    local all = require('toggleterm.terminal').get_all()
+    for i, t in ipairs(all) do
+      if t.id == term.id then
+        vim.api.nvim_win_set_config(term.window, {
+          footer = { { string.format(' %d/%d ', i, #all), 'Comment' } },
+          footer_pos = 'right',
+        })
+      end
+    end
+  end,
 }
 
 local terms = require 'toggleterm.terminal'
@@ -30,9 +45,36 @@ local function focus_term(id)
   end
 end
 
-for i = 1, 5 do
-  vim.keymap.set({ 'n', 'i', 't' }, '<A-' .. i .. '>', function() focus_term(i) end, { desc = 'Terminal ' .. i })
+-- Step to the neighbouring terminal by id, relative to the focused one (or the
+-- last one used if none is open). Stepping right past the last terminal opens a
+-- new one; stepping left past the first does nothing. Hidden terminals like
+-- lazygit are skipped.
+local function step_term(dir)
+  local all = terms.get_all()
+  if #all == 0 then return focus_term(1) end
+
+  local current = terms.get_focused_id()
+  if not current then
+    local last = terms.get_last_focused()
+    current = last and not last.hidden and last.id or all[1].id
+  end
+
+  local idx
+  for i, term in ipairs(all) do
+    if term.id == current then idx = i end
+  end
+  if not idx then return focus_term(all[1].id) end
+
+  local target = all[idx + dir]
+  if target then
+    focus_term(target.id)
+  elseif dir > 0 then
+    focus_term(all[#all].id + 1)
+  end
 end
+
+vim.keymap.set({ 'n', 'i', 't' }, '<A-h>', function() step_term(-1) end, { desc = 'Previous terminal' })
+vim.keymap.set({ 'n', 'i', 't' }, '<A-l>', function() step_term(1) end, { desc = 'Next terminal' })
 
 local function term_label(term)
   local name = term.display_name
@@ -107,7 +149,7 @@ vim.keymap.set({ 'i', 't' }, '<A-t>', term_picker, { desc = 'Pick terminal' })
 
 -- Lazygit in a floating terminal. Pinned to a high id: ids are handed out by
 -- next_id() starting at 1, so an unpinned hidden terminal would claim id 1 and
--- <A-1> / 1ToggleTerm would then toggle lazygit instead of a shell.
+-- 1ToggleTerm would then toggle lazygit instead of a shell.
 local lazygit = Terminal:new {
   id = 99,
   cmd = 'lazygit',
