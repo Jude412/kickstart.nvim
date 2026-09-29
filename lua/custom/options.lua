@@ -16,7 +16,7 @@ vim.o.foldenable = false
 vim.diagnostic.config { virtual_text = false }
 
 -- Fix remote clipboard
-if vim.env.SSH_TTY and not (vim.env.DISPLAY or vim.env.WAYLAND_DISPLAY) then
+if vim.env.SSH_TTY or vim.env.SSH_CONNECTION then
   local osc52 = require 'vim.ui.clipboard.osc52'
 
   local cached = {}
@@ -29,9 +29,16 @@ if vim.env.SSH_TTY and not (vim.env.DISPLAY or vim.env.WAYLAND_DISPLAY) then
   end
   local function paste() return cached end
 
+  local osc52 = require('vim.ui.clipboard.osc52')
   vim.g.clipboard = {
     name = 'OSC 52',
-    copy = { ['+'] = copy '+', ['*'] = copy '*' },
-    paste = { ['+'] = paste, ['*'] = paste },
+    copy = {
+      ['+'] = osc52.copy('+'),
+      ['*'] = osc52.copy('*'),
+    },
+    paste = {
+      ['+'] = function() return { vim.fn.getreg('0', 1, true), vim.fn.getregtype('0') } end,
+      ['*'] = function() return { vim.fn.getreg('0', 1, true), vim.fn.getregtype('0') } end,
+    },
   }
 end
