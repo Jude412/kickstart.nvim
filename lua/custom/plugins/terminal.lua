@@ -8,3 +8,6 @@ require('toggleterm').setup {
     border = 'curved',
   },
 }
+vim.keymap.set('t', '<C-l>', '<cmd>ToggleTermNext<CR>', { desc = 'Next terminal' })
+vim.keymap.set('t', '<C-h>', '<cmd>ToggleTermPrev<CR>', { desc = 'Previous terminal' })
+vim.keymap.set('t', '<C-k>', '<cmd>ToggleTermToggleAll<CR>', { desc = 'All terminals' })
