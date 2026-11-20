@@ -15,30 +15,24 @@ vim.o.foldenable = false
 -- Prefer the floating diagnostic window (see LspAttach `jump.on_jump`) over inline virtual text
 vim.diagnostic.config { virtual_text = false }
 
--- Fix remote clipboard
+-- Fix remote clipboard: copy goes to the local clipboard over OSC 52; paste returns the last thing
+-- copied or deleted in Neovim (reading the clipboard back over OSC 52 hangs in many terminals)
 if vim.env.SSH_TTY or vim.env.SSH_CONNECTION then
   local osc52 = require 'vim.ui.clipboard.osc52'
-
-  local cached = {}
+  local cache = { ['+'] = { {}, 'v' }, ['*'] = { {}, 'v' } }
   local function copy(reg)
     local send = osc52.copy(reg)
     return function(lines, regtype)
-      cached = { lines, regtype }
+      cache[reg] = { lines, regtype }
       send(lines)
     end
   end
-  local function paste() return cached end
-
-  local osc52 = require('vim.ui.clipboard.osc52')
+  local function paste(reg)
+    return function() return cache[reg] end
+  end
   vim.g.clipboard = {
     name = 'OSC 52',
-    copy = {
-      ['+'] = osc52.copy('+'),
-      ['*'] = osc52.copy('*'),
-    },
-    paste = {
-      ['+'] = function() return { vim.fn.getreg('0', 1, true), vim.fn.getregtype('0') } end,
-      ['*'] = function() return { vim.fn.getreg('0', 1, true), vim.fn.getregtype('0') } end,
-    },
+    copy = { ['+'] = copy '+', ['*'] = copy '*' },
+    paste = { ['+'] = paste '+', ['*'] = paste '*' },
   }
 end

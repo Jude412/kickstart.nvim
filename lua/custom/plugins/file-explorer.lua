@@ -7,6 +7,9 @@ require('nvim-tree').setup {
     enable = true,
     update_root = false,
   },
+  filters = {
+    git_ignored = false, -- show files ignored by git (toggle in-tree with `I`)
+  },
   on_attach = function(bufnr)
     local api = require 'nvim-tree.api'
     api.config.mappings.default_on_attach(bufnr)
